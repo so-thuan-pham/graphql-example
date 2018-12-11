@@ -18,6 +18,7 @@ const schema = buildSchema(`
     type RootQuery {
         language: String
         getChampions: [Champion]
+        getChampionByName(name: String!): Champion
         events: [Event!]!
     }
 
@@ -54,6 +55,10 @@ const schema = buildSchema(`
 const rootValue = {
     language: () => 'GraphQL',
     getChampions: () => champions,
+    getChampionByName: ({ name }) => {
+        return champions.find(x => x.name === name)
+    },
+
     events: () => events,
     createEvent: args => {
         const event = {

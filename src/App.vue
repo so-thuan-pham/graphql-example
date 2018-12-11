@@ -3,7 +3,24 @@
     <h3>Example 1</h3>
     <div>Data: {{ example1 }}</div>
     <button @click="getLanguage">Get Language</button>
+
     <hr>
+
+    <h3>Example 2</h3>
+    <div>Data:
+      <div v-for="champion in champions">{{ champion }}</div>
+    </div>
+    <button @click="getChampions">Get Champions</button>
+
+    <hr>
+
+    <h3>Example 3</h3>Name:
+    <input v-model="name">
+    <div>
+      Data:
+      {{ champion }}
+    </div>
+    <button @click="getChampionByName">Get Champion</button>
   </div>
 </template>
 
@@ -13,7 +30,10 @@ export default {
   name: "app",
   data() {
     return {
-      example1: ""
+      example1: "",
+      champions: [],
+      champion: {},
+      name: ""
     };
   },
   methods: {
@@ -26,6 +46,31 @@ export default {
       } catch (e) {
         console.log("err", e);
       }
+    },
+    async getChampions() {
+      const res = await axios.post("http://localhost:4000/graphql", {
+        query: `{
+          getChampions {
+            name
+          }
+        }`
+      });
+      this.champions = res.data.data;
+    },
+    async getChampionByName() {
+      const res = await axios.post("http://localhost:4000/graphql", {
+        query: `
+      query GetChampionByName($championName: String!) {
+        getChampionByName(name: $championName) {
+          name
+          attackDamage
+        }
+      }`,
+        variables: {
+          championName: this.name
+        }
+      });
+      this.champion = res.data.data.getChampionByName;
     }
   }
 };
@@ -33,7 +78,7 @@ export default {
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
